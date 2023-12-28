@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from AIquestion import question
 from VideoToText import video_to_text
+import os
 
 app = Flask(__name__)
 CORS(app)
-api_key = '' # api_key 입력
+openai_api_key = os.environ.get('OPENAI_API_KEY')
 
 # 자기소개서 내용을 입력받아 예상 질문 반환하는 엔드포인트
 @app.route('/resume', methods=['POST'])
@@ -15,7 +16,7 @@ def generate_questions():
 
     # questions는 질문 5가지를 가진 list 형식
     try:
-        questions = question(api_key, resume)
+        questions = question(openai_api_key, resume)
         sim_score = ''
         modified_resume = ''
         length = ''
