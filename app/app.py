@@ -1,12 +1,22 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from AIquestion import question
 from VideoToText import video_to_text
+from dotenv import load_dotenv
 import os
+
+# .env 파일에서 환경 변수 로드
+load_dotenv()
+
+# 환경 변수 사용
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
 app = Flask(__name__)
 CORS(app)
-openai_api_key = os.environ.get('OPENAI_API_KEY')
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 # 자기소개서 내용을 입력받아 예상 질문 반환하는 엔드포인트
 @app.route('/resume', methods=['POST'])
@@ -14,18 +24,15 @@ def generate_questions():
     data = request.json
     resume = data.get('resume')
 
-    # questions는 질문 5가지를 가진 list 형식
     try:
-        questions = question(openai_api_key, resume)
-        sim_score = ''
-        modified_resume = ''
-        length = ''
+        questions, modified_resume, length = question(openai_api_key, resume)
+        # modified_resume = ''
+        # length = ''
         return jsonify({
             'success': True,
             'reason': None,
             'content': {
                 'results': {
-                    'similarity': sim_score,
                     'modified': modified_resume,
                     'length': length,
                 },
@@ -33,11 +40,12 @@ def generate_questions():
             }
         })
     except Exception as e:
+        print('wow',e)
         return jsonify({
             'success': False,
             'reason': str(e),
             'content': None
-        })
+        }), 500
 
 
 # 면접 영상을 업로드하고 텍스트로 변환하는 엔드포인트
@@ -53,18 +61,16 @@ def upload_video():
             'content': None
         }), 400
 
-    # 비디오 파일을 텍스트로 변환, score를 추출하는 함수 호출
-    # 예: video_to_text 함수
     try:
-        text, score = video_to_text(video_path) # 이 함수는 수정이 필요할 수 있음
+        video_path = 'test.mp4'
+        text = video_to_text(video_path)  # 여기에서 비디오 처리 로직이 실행됨
         return jsonify({
             'success': True,
             'reason': None,
             'content': {
                 'video_path': video_path,
                 'results': {
-                    'text': text,
-                    'score': score
+                    'text': text
                 }
             },
         })
