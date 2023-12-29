@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Server Test</title>
+</head>
+<body>
+    <h2>자기소개서 질문 생성</h2>
+    <form id="resumeForm">
+        <textarea id="resumeText" rows="4" cols="50"></textarea><br>
+        <button type="button" onclick="submitResume()">질문 생성</button>
+    </form>
+
+    <h2>비디오 텍스트 변환</h2>
+    <form id="videoForm">
+        <input type="text" id="videoPath" placeholder="비디오 경로 입력"><br>
+        <button type="button" onclick="submitVideo()">텍스트 변환</button>
+    </form>
+
+    <script>
+        function submitResume() {
+            var resume = document.getElementById('resumeText').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/resume", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    console.log(json);
+                    alert(JSON.stringify(json, null, 2));
+                }
+            };
+            var data = JSON.stringify({"resume": resume});
+            xhr.send(data);
+        }
+
+        function submitVideo() {
+            var videoPath = document.getElementById('videoPath').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/video", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    console.log(json);
+                    alert(JSON.stringify(json, null, 2));
+                }
+            };
+            var data = JSON.stringify({"video_path": videoPath});
+            xhr.send(data);
+        }
+    </script>
+</body>
+</html>
